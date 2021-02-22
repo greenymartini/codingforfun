@@ -1,5 +1,6 @@
 import pygame, sys, datetime
 from math import *
+
 windowMargin= 30
 windowWidth= 60
 windowheight= windowWidth
