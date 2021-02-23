@@ -1,6 +1,9 @@
 import pygame, sys, datetime
 import math
 
+
+# Initialise Varables
+
 windowMargin= 30
 windowWidth= 60
 windowheight= windowWidth
@@ -19,6 +22,14 @@ screen= None
 
 virtualSpeed=1
 useVirtualTimer=False
+
+hour=0
+minute=0
+second=0
+micro=0
+
+
+# Functions
 
 def getCursorPositionDegrees(position, scale):
     cursorOffset= -90
@@ -42,28 +53,6 @@ def handleEvents():
             sys.exit(0)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             sys.exit(0)
-
-def main():
-    global screen
-    pygame.init()
-
-    screen = pygame.display.set_mode(\
-        (windowWidth,windowheight)\
-        ,pygame.HWSURFACE | pygame.DOUBLEBUF);
-    pygame.display.set_caption('Analog Clock')
-
-    while True:
-        handleEvents()
-        screen.fill(backgroundColor)
-
-        drawBackgroundcolor()
-        drawCurrentTime()
-        drawForeground()
-
-        pygame.display.flip()
-        pygame.time.delay(10)
-if __name__=='main':
-    main()
 
 def drawBackground():
     screen.fill(Backgroundcolor)
@@ -97,19 +86,6 @@ def drawCurrentTime():
         minute= now.minute
         secound= now.secound
 
-hour=0
-minute=0
-second=0
-micro=0
-
-
-
-
-drawCursor(hourColor, 15, hourCoursorLength, hour + minute/60.0, 12)
-drawCursor(minuteColor,8,minuteCursorLenght, minute+second/60.0,60)
-drawCursor(secoundColor,3, secoundCursorLenght,second+micro/1000000.0,60)
-
-
 def timeGoesOn():
     global hour, minute, second, micro
     micro += virtualSpeed
@@ -124,3 +100,45 @@ def timeGoesOn():
         minute %= 60
     if hour > 12:
         hour %= 12
+
+
+
+def main():
+    global screen
+    pygame.init()
+
+    screen = pygame.display.set_mode(\
+        (windowWidth,windowheight)\
+        ,pygame.HWSURFACE | pygame.DOUBLEBUF);
+    pygame.display.set_caption('Analog Clock')
+
+
+
+    drawCursor(hourColor, 15, hourCoursorLength, hour + minute/60.0, 12)
+    drawCursor(minuteColor,8,minuteCursorLenght, minute+second/60.0,60)
+    drawCursor(secoundColor,3, secoundCursorLenght,second+micro/1000000.0,60)
+
+
+    while True:
+        handleEvents()
+        screen.fill(backgroundColor)
+
+        drawBackgroundcolor()
+        drawCurrentTime()
+        drawForeground()
+
+        pygame.display.flip()
+        pygame.time.delay(10)
+
+
+if __name__ == '__main__' :
+    main()
+
+
+
+
+
+
+
+
+
