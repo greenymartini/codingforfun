@@ -1,5 +1,5 @@
 import pygame, sys, datetime
-from math import *
+import math
 
 windowMargin= 30
 windowWidth= 60
@@ -46,6 +46,7 @@ def handleEvents():
 def main():
     global screen
     pygame.init()
+
     screen = pygame.display.set_mode(\
         (windowWidth,windowheight)\
         ,pygame.HWSURFACE | pygame.DOUBLEBUF);
@@ -80,8 +81,10 @@ def drawForeground():
     (windowWidth/2.0-9, windowheight/2.0-9,18,18))
 
 def drawCursor(color,width,length,position,scale):
-    end = getCirclePoint(position, scale, length);
-    pygame.draw.line(screen, color, windowCenter, end, width)
+    global screen
+    if(screen is not None):
+        end = getCirclePoint(position, scale, length)
+        pygame.draw.line(screen, color, windowCenter, end, width)
 
 def drawCurrentTime():
     if useVirtualTimer:
@@ -103,8 +106,8 @@ micro=0
 
 
 drawCursor(hourColor, 15, hourCoursorLength, hour + minute/60.0, 12)
-drawCursor(minuteColor,8,minuteCursorLenght, minute+secound/60.0,60)
-drawCursor(secoundColor,3, secoundCursorLenght,secound+micro/1000000.0,60)
+drawCursor(minuteColor,8,minuteCursorLenght, minute+second/60.0,60)
+drawCursor(secoundColor,3, secoundCursorLenght,second+micro/1000000.0,60)
 
 
 def timeGoesOn():
