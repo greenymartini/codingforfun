@@ -40,10 +40,14 @@ def gradToBogenmass(degrees):
     return degrees/180.0*math.pi 
 
 def getCirclePoint(position, scale, cursorlength):
-    degrees= getCursorPositionDegrees(position,scale)
-    bogenmass= gradToBogenmass(degrees)
+
+    degrees   = getCursorPositionDegrees(position,scale)
+    bogenmass = gradToBogenmass(degrees)
+
     xPos= round(math.cos(bogenmass)*hourCoursorLength+windowCenter[0]) #problem
     yPos= round(math.sin(bogenmass)*minuteCursorLenght+windowCenter[1]) #problem
+
+    return xPos, yPos
 
 def handleEvents():
     for event in pygame.event.get():
@@ -54,20 +58,41 @@ def handleEvents():
         elif event.type == pygame.MOUSEBUTTONDOWN:
             sys.exit(0)
 
-def drawBackground():
-    screen.fill(Backgroundcolor)
-    pygame.draw.ellipse(screen, clockMarginColor, (windowMargin,\
-        windowMargin, windowWidth-2*windowMargin,\
-        windowWidth-2*windowMargin))
-    pygame.draw.ellipse(screen, clockBackgroundcolor, \
-    (windowMargin+clockMarginWidth/2,\
-    windowMargin+clockMarginWidth/2,\
-    windowWidth-(windowMargin+clockMarginWidth/2)*2,\
-    windowWidth-(windowMargin+clockMarginWidth/2)*2))
+def drawBackgroundcolor():
+    screen.fill(backgroundColor)
+    pygame.draw.ellipse(
+        screen, 
+        clockMarginColor, 
+        (   
+            windowMargin, 
+            windowMargin, 
+            windowWidth -2 * windowMargin, 
+            windowWidth -2 * windowMargin
+        )
+    )
+
+    pygame.draw.ellipse(
+        screen, 
+        clockBackgroundcolor,
+        (
+            windowMargin+clockMarginWidth/2,
+            windowMargin+clockMarginWidth/2,
+            windowWidth-(windowMargin+clockMarginWidth/2)*2,
+            windowWidth-(windowMargin+clockMarginWidth/2)*2
+        )
+    )
 
 def drawForeground():
-    pygame.draw.ellipse(screen,clockMarginColor,\
-    (windowWidth/2.0-9, windowheight/2.0-9,18,18))
+    pygame.draw.ellipse(
+        screen,
+        clockMarginColor,
+        (
+            windowWidth/2.0-9, 
+            windowheight/2.0-9,
+            18,
+            18
+        )
+    )
 
 def drawCursor(color,width,length,position,scale):
     global screen
@@ -76,15 +101,20 @@ def drawCursor(color,width,length,position,scale):
         pygame.draw.line(screen, color, windowCenter, end, width)
 
 def drawCurrentTime():
+    global hour, micro, minute, second, minuteColor
+
     if useVirtualTimer:
-        global hour, minute, secound, minuteColor
+        print("Use Virtual Time")
         timeGoesOn()
     else:
+        print("Don't Virtual Time")
         now = datetime.datetime.now()
-        micro = now.microsecound
+        micro = now.microsecond
         hour = now.hour
         minute= now.minute
-        secound= now.secound
+        second= now.second
+    
+    print(f"{hour}, {micro}, {minute}, {second}, {minuteColor}")
 
 def timeGoesOn():
     global hour, minute, second, micro
@@ -109,23 +139,26 @@ def main():
 
     screen = pygame.display.set_mode(\
         (windowWidth,windowheight)\
-        ,pygame.HWSURFACE | pygame.DOUBLEBUF);
+        ,pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption('Analog Clock')
 
 
 
-    drawCursor(hourColor, 15, hourCoursorLength, hour + minute/60.0, 12)
-    drawCursor(minuteColor,8,minuteCursorLenght, minute+second/60.0,60)
-    drawCursor(secoundColor,3, secoundCursorLenght,second+micro/1000000.0,60)
-
 
     while True:
+
+        print( "Loop")
+
         handleEvents()
         screen.fill(backgroundColor)
 
         drawBackgroundcolor()
         drawCurrentTime()
-        drawForeground()
+        #drawForeground()
+
+        drawCursor(hourColor, 15, hourCoursorLength, hour + minute/60.0, 12)
+        drawCursor(minuteColor,8,minuteCursorLenght, minute+second/60.0,60)
+        drawCursor(secoundColor,3, secoundCursorLenght,second+micro/1000000.0,60)
 
         pygame.display.flip()
         pygame.time.delay(10)
