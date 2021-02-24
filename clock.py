@@ -4,8 +4,8 @@ import math
 
 # Initialise Varables
 
-windowMargin= 30
-windowWidth= 60
+windowMargin= 100
+windowWidth= 200
 windowheight= windowWidth
 windowCenter= windowheight/2, windowWidth/2
 clockMarginWidth=20
@@ -154,7 +154,7 @@ def main():
 
         drawBackgroundcolor()
         drawCurrentTime()
-        #drawForeground()
+        drawForeground()
 
         drawCursor(hourColor, 15, hourCoursorLength, hour + minute/60.0, 12)
         drawCursor(minuteColor,8,minuteCursorLenght, minute+second/60.0,60)
