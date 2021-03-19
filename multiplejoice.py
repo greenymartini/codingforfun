@@ -27,7 +27,7 @@ def run_test(questionair):
         if answer == questions.answer:
             score+=1
     if score == 1:
-        print ("You will become an anti-facist pretty sure ")
+        print ("You will become an anti-facist pretty sure. enjoy the installation and stay safe!")
     elif score > 1:
         print("You are a fullon anti-facist")
     else: 
