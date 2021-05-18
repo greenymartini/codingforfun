@@ -10,6 +10,8 @@ from pygame.locals import (
     K_ESCAPE,
     KEYDOWN,
     QUIT,
+    K_f,
+    K_d
 )
 
 SCREEN_WIDTH=800
@@ -18,9 +20,10 @@ SCREEN_HEIGHT=600
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        self.surf=pygame.image.load("images/drosten.png").convert()
+        self.surf=pygame.image.load("images/faust.png").convert()
         self.surf.set_colorkey((255,255,255), RLEACCEL)
         self.rect = self.surf.get_rect()
+    
 
     def update(self, pressed_keys):
         if pressed_keys[K_UP]:
@@ -42,10 +45,42 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom >= SCREEN_HEIGHT:
             self.rect.bottom= SCREEN_HEIGHT
         
+class bullet(pygame.sprite.Sprite):
+    def __init__(self):
+        super(bullet, self).__init__()
+        self.surf = pygame.image.load("images/vaccine.png")
+        self.surf.set_colorkey((255,255,255), RLEACCEL)
+        self.rect=self.surf.get_rect()
+    
+    def update(self, pressed_keys):
+        if pressed_keys[K_UP]:
+            self.rect.move_ip(0,-3)
+            move_up_sound.play()
+        if pressed_keys[K_DOWN]:
+            self.rect.move_ip(0, 3)
+            move_down_sound.play()
+        if pressed_keys[K_LEFT]:
+            self.rect.move_ip(-3, 0)
+        if pressed_keys[K_RIGHT]:
+            self.rect.move_ip(3, 0)
+        if self.rect.left < 0:
+            self.rect.left=0
+        if self.rect.right > SCREEN_WIDTH:
+            self.rect.right= SCREEN_WIDTH
+        if self.rect.top <= 0:
+            self.rect.top=0
+        if self.rect.bottom >= SCREEN_HEIGHT:
+            self.rect.bottom= SCREEN_HEIGHT
+        if pressed_keys[K_f]:
+            self.rect.move_ip(5,0)
+            self.speed= 5
+        
+
+        
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super(Enemy, self).__init__()
-        self.surf = pygame.image.load("images/enemy.png").convert()
+        self.surf = pygame.image.load("images/AFD.png").convert()
         self.surf.set_colorkey((255,255,255), RLEACCEL)
         self.rect = self.surf.get_rect( center= (
             random.randint(SCREEN_WIDTH+20, SCREEN_WIDTH+100),
@@ -62,7 +97,7 @@ class Enemy(pygame.sprite.Sprite):
 class Cloud(pygame.sprite.Sprite):
     def __init__(self):
         super(Cloud, self).__init__()
-        self.surf = pygame.image.load("images/lashetcloud.png").convert()
+        self.surf = pygame.image.load("images/hildmann.png").convert()
         self.surf.set_colorkey((0,0,0), RLEACCEL)
         self.rect = self.surf.get_rect( 
             center=(
@@ -87,32 +122,41 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 ADDENEMY= pygame.USEREVENT + 1 
-pygame.time.set_timer(ADDENEMY, 250)
+pygame.time.set_timer(ADDENEMY, 600)
 
 ADDCLOUD= pygame.USEREVENT + 2 
-pygame.time.set_timer(ADDCLOUD, 1000)
+pygame.time.set_timer(ADDCLOUD, 2000)
+
+
 
 player = Player()
+bullet = bullet()
+
 
 enemies = pygame.sprite.Group()
 cloud= pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
+all_sprites.add(bullet)
 
 
-pygame.mixer.music.load("sounds/theme.wav")
+
+
+pygame.mixer.music.load("sounds/E2-new.ogg")
 pygame.mixer.music.play(loops=-1)
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(0.9)
 
-move_up_sound = pygame.mixer.Sound("sounds/move.wav")
-move_down_sound = pygame.mixer.Sound("sounds/move.wav")
-collission_sound = pygame.mixer.Sound("sounds/explosion.wav")
-clouds= pygame.mixer.Sound("sounds/Laschet.ogg .ogg")
+move_up_sound = pygame.mixer.Sound("sounds/highend.ogg")
+move_down_sound = pygame.mixer.Sound("sounds/lowend.ogg")
+collission_sound = pygame.mixer.Sound("sounds/injectionSnd.ogg")
+afd_hits_you_sound= pygame.mixer.Sound("sounds/explosion.wav")
+#clouds= pygame.mixer.Sound("sounds/Laschet.ogg .ogg")
 
-move_up_sound.set_volume(0.3)
-move_down_sound.set_volume(0.3)
-collission_sound.set_volume(1.0)
-clouds.set_volume(0.7)
+move_up_sound.set_volume(0.1)
+move_down_sound.set_volume(0.1)
+collission_sound.set_volume(0.9)
+afd_hits_you_sound.set_volume(1.0)
+#clouds.set_volume(0.7)
 
 running = True
 
@@ -135,7 +179,12 @@ while running:
             new_cloud = Cloud()
             cloud.add(new_cloud)
             all_sprites.add(new_cloud)
-            clouds.play()
+            #clouds.play()
+        
+            
+        
+        
+            
             
 
         
@@ -146,6 +195,7 @@ while running:
     enemies.update()
     cloud.update()
     
+    bullet.update(pressed_keys)
 
 
     screen.fill((255,0,0))
@@ -155,18 +205,32 @@ while running:
 
     if pygame.sprite.spritecollideany(player, enemies):
         player.kill()
-
         move_down_sound.stop()
         move_up_sound.stop()
         pygame.mixer.music.stop()
         pygame.time.delay(50)
-        collission_sound.play()
+        afd_hits_you_sound.play()
         pygame.time.delay(500)
-        
-        
+
         running = False
+    
+    
+    for enemy in enemies:
+        if pygame.sprite.spritecollideany(bullet, enemies):
+            collission_sound.play()
+            enemy.kill()
+            
 
 
+   
+        
+
+    #elif pygame.sprite.spritecollideany(bullet, enemies):
+     #   enemies.update()
+      #  running = True  
+        
+
+        
 
     pygame.display.flip()
     clock.tick(200)
