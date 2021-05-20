@@ -173,36 +173,32 @@ def start_the_game():
 
 
 def draw():
-
+    
     menu = pygame_menu.Menu(
         height=300, 
         width=400, 
         title='VACCINATE THE HATEVIRUS',
         theme=pygame_menu.themes.THEME_BLUE)
         
-    menu.add.text_input('Name: ', default= 'Drosten')
-    menu.add.button('Play', start_the_game)
+    menu.add.text_input('Name :', default= 'Drosten')
+    menu.add.button('Play', game_loop)
+
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
-    surface=pygame.surface
 
 
-    while True:
-        print('5')
-        events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.QUIT:
-                exit()
-       
-        if menu.is_enabled():
-            menu.update(events)
-            menu.draw(screen)
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            exit()
+
+    if menu.is_enabled():
+        menu.update(events)
+        menu.draw(screen)
+        
+
+    pygame.display.update()
     
-            
-            print('6')
-        pygame.display.update()
-        print('7')
-
 
 
 
@@ -213,8 +209,8 @@ def draw():
 def menu_func():
     global start
 
-    draw()
-    
+    while True:
+        draw()
     
 
    
@@ -224,7 +220,7 @@ def game_loop():
     global start
         
     
-    print('3')
+    print('gameloop')
     for event in pygame.event.get():
         if event.type == KEYDOWN:
             if event.key== K_ESCAPE:
@@ -240,7 +236,7 @@ def game_loop():
             new_cloud = Cloud()
             cloud.add(new_cloud)
             all_sprites.add(new_cloud)
-              
+            #clouds.play()   
 
     pressed_keys= pygame.key.get_pressed()
     player.update(pressed_keys)
@@ -255,7 +251,7 @@ def game_loop():
 
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
-    
+
     if pygame.sprite.spritecollideany(player, enemies):
         player.kill()
         start = 'waiting'
@@ -274,7 +270,7 @@ def game_loop():
             collission_sound.play()
             enemy.kill()
     
-    print('4')
+    
 
 
             
@@ -285,15 +281,11 @@ def mainloop():
 
     while True:
         if start == 'waiting':
-            print ('1')
             menu_func()
-            
-            
         
         elif start == 'game':
             game_loop()
-            print('2')
-        
+        pygame.display.flip()
         clock.tick(200)
 
     pygame.mixer.quit()
