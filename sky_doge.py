@@ -1,7 +1,5 @@
 import pygame_menu
 import pygame
-import random 
-from time import sleep
 from pygame.locals import (
     RLEACCEL,
     K_UP,
@@ -15,9 +13,49 @@ from pygame.locals import (
     K_d
 )
 
+
+import random 
+
+from time import sleep
+
+
 SCREEN_WIDTH=1000
 SCREEN_HEIGHT=800
 
+
+pygame.init()
+
+
+ADDENEMY= pygame.USEREVENT + 1 
+pygame.time.set_timer(ADDENEMY, 600)
+
+ADDCLOUD= pygame.USEREVENT + 2 
+pygame.time.set_timer(ADDCLOUD, 2000)
+
+clock = pygame.time.Clock()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+
+
+# Init Mixer
+pygame.mixer.init()
+pygame.mixer.music.load("sounds/E2-new.ogg")
+pygame.mixer.music.play(loops=-1)
+pygame.mixer.music.set_volume(0.9)
+
+
+move_up_sound = pygame.mixer.Sound("sounds/highend.ogg")
+move_down_sound = pygame.mixer.Sound("sounds/lowend.ogg")
+collission_sound = pygame.mixer.Sound("sounds/injectionSnd.ogg")
+afd_hits_you_sound= pygame.mixer.Sound("sounds/explosion.wav")
+
+
+move_up_sound.set_volume(0.1)
+move_down_sound.set_volume(0.1)
+collission_sound.set_volume(0.9)
+afd_hits_you_sound.set_volume(1.0)
+
+# Start state
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
@@ -114,123 +152,63 @@ class Cloud(pygame.sprite.Sprite):
             self.kill()
 
 
-pygame.mixer.init()
-pygame.init()
-
-
-
-
-clock = pygame.time.Clock()
-
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-
-
-
-ADDENEMY= pygame.USEREVENT + 1 
-pygame.time.set_timer(ADDENEMY, 600)
-
-ADDCLOUD= pygame.USEREVENT + 2 
-pygame.time.set_timer(ADDCLOUD, 2000)
-
-
-
+# Create Game Objects
 player = Player()
 bullet = bullet()
-
-
 enemies = pygame.sprite.Group()
 cloud= pygame.sprite.Group()
+
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 all_sprites.add(bullet)
-
-
-
-
-pygame.mixer.music.load("sounds/E2-new.ogg")
-pygame.mixer.music.play(loops=-1)
-pygame.mixer.music.set_volume(0.9)
-
-move_up_sound = pygame.mixer.Sound("sounds/highend.ogg")
-move_down_sound = pygame.mixer.Sound("sounds/lowend.ogg")
-collission_sound = pygame.mixer.Sound("sounds/injectionSnd.ogg")
-afd_hits_you_sound= pygame.mixer.Sound("sounds/explosion.wav")
-
-move_up_sound.set_volume(0.1)
-move_down_sound.set_volume(0.1)
-collission_sound.set_volume(0.9)
-afd_hits_you_sound.set_volume(1.0)
 
 start = 'waiting'
 
 def start_the_game():
     global start
-    start= 'game'
-    print('start')
+    print("Start the game")
+    start = 'game'
+    menu.disable()
 
-
-
-def draw():
-
-    menu = pygame_menu.Menu(
-        height=300, 
-        width=400, 
-        title='VACCINATE THE HATEVIRUS',
-        theme=pygame_menu.themes.THEME_BLUE)
-        
-    menu.add.text_input('Name: ', default= 'Drosten')
-    menu.add.button('Play', start_the_game)
-    menu.add.button('Quit', pygame_menu.events.EXIT)
-
-    surface=pygame.surface
-
-
-    while True:
-        print('5')
-        events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.QUIT:
-                exit()
-       
-        if menu.is_enabled():
-            menu.update(events)
-            menu.draw(screen)
-    
-            
-            print('6')
-        pygame.display.update()
-        print('7')
-
-
-
-
-
-
-
-
-def menu_func():
+def end_the_game():
     global start
+    print("End the game")
+    start = 'waiting'
+    menu.enable()
 
-    draw()
+# Init Menu
+menu = pygame_menu.Menu(
+    height=300, 
+    width=400, 
+    title='VACCINATE THE HATEVIRUS',
+    theme=pygame_menu.themes.THEME_BLUE)
     
-    
+menu.add.text_input('Name: ', default= 'Drosten')
+menu.add.button('Play', start_the_game)
+menu.add.button('Quit', pygame_menu.events.EXIT)
 
-   
 
 
-def game_loop():
-    global start
+
+
+def menu_func(events):
+
+    if menu.is_enabled():
+        menu.update(events)
+
+    if menu.is_enabled():
+        menu.draw(screen)
+
+
+
+def game_loop(events):
         
-    
-    print('3')
-    for event in pygame.event.get():
+    for event in events:
         if event.type == KEYDOWN:
             if event.key== K_ESCAPE:
-                start = 'waiting'
+                end_the_game()
         elif event.type == QUIT:
-            start = 'waiting'            
+            end_the_game()          
         elif event.type == ADDENEMY:
             new_enemy= Enemy()
             enemies.add(new_enemy)
@@ -243,13 +221,12 @@ def game_loop():
               
 
     pressed_keys= pygame.key.get_pressed()
-    player.update(pressed_keys)
 
+    player.update(pressed_keys)
     enemies.update()
     cloud.update()
     
     bullet.update(pressed_keys)
-
 
     screen.fill((255,0,0))
 
@@ -258,7 +235,6 @@ def game_loop():
     
     if pygame.sprite.spritecollideany(player, enemies):
         player.kill()
-        start = 'waiting'
         move_down_sound.stop()
         move_up_sound.stop()
         pygame.mixer.music.stop()
@@ -266,34 +242,34 @@ def game_loop():
         afd_hits_you_sound.play()
         pygame.time.delay(500)
 
-        
-    
+        end_the_game()  
     
     for enemy in enemies:
         if pygame.sprite.spritecollideany(bullet, enemies):
             collission_sound.play()
             enemy.kill()
-    
-    print('4')
-
 
             
 
 def mainloop():
     global start
-
-
     while True:
+
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                exit()
+
         if start == 'waiting':
-            print ('1')
-            menu_func()
+            print ('waiting')
+            menu_func(events)
             
-            
-        
+
         elif start == 'game':
-            game_loop()
-            print('2')
+            print ('game')
+            game_loop(events)
         
+        pygame.display.update()
         clock.tick(200)
 
     pygame.mixer.quit()
