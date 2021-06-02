@@ -163,70 +163,16 @@ move_down_sound.set_volume(0.1)
 collission_sound.set_volume(0.9)
 afd_hits_you_sound.set_volume(1.0)
 
-start = 'waiting'
+start= True
 
-def start_the_game():
-    global start
-    start= 'game'
-    print('start')
-
-
-
-def draw():
+while start:    
     
-    menu = pygame_menu.Menu(
-        height=300, 
-        width=400, 
-        title='VACCINATE THE HATEVIRUS',
-        theme=pygame_menu.themes.THEME_BLUE)
-        
-    menu.add.text_input('Name :', default= 'Drosten')
-    menu.add.button('Play', game_loop)
-
-    menu.add.button('Quit', pygame_menu.events.EXIT)
-
-
-
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            exit()
-
-    if menu.is_enabled():
-        menu.update(events)
-        menu.draw(screen)
-        
-
-    pygame.display.update()
-    
-
-
-
-
-
-
-
-def menu_func():
-    global start
-
-    while True:
-        draw()
-    
-
-   
-
-
-def game_loop():
-    global start
-        
-    
-    print('gameloop')
     for event in pygame.event.get():
         if event.type == KEYDOWN:
             if event.key== K_ESCAPE:
-                start = 'waiting'
+                start = False
         elif event.type == QUIT:
-            start = 'waiting'            
+            start = False       
         elif event.type == ADDENEMY:
             new_enemy= Enemy()
             enemies.add(new_enemy)
@@ -239,7 +185,9 @@ def game_loop():
             #clouds.play()   
 
     pressed_keys= pygame.key.get_pressed()
+    print('pressed keys')
     player.update(pressed_keys)
+    print('update')
 
     enemies.update()
     cloud.update()
@@ -248,13 +196,16 @@ def game_loop():
 
 
     screen.fill((255,0,0))
+    print('screenfill')
+
+    
 
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
-
+        print('draw entitys to the screen')
     if pygame.sprite.spritecollideany(player, enemies):
         player.kill()
-        start = 'waiting'
+        start = False
         move_down_sound.stop()
         move_up_sound.stop()
         pygame.mixer.music.stop()
@@ -269,31 +220,15 @@ def game_loop():
         if pygame.sprite.spritecollideany(bullet, enemies):
             collission_sound.play()
             enemy.kill()
-    
-    
-
-
             
 
-def mainloop():
-    global start
+    
 
 
-    while True:
-        if start == 'waiting':
-            menu_func()
-        
-        elif start == 'game':
-            game_loop()
-        pygame.display.flip()
-        clock.tick(200)
-
-    pygame.mixer.quit()
-    print('finish')
-
-if __name__ == '__main__':
-    mainloop()
-
-
-
+  
+    clock.tick(200)
+                
+    pygame.display.flip()
+pygame.mixer.quit()
+print('finish')
 
